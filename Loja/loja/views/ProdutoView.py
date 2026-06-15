@@ -14,12 +14,14 @@ def edit_produto_postback(request, id=None):
         msgPromocao = request.POST.get("msgPromocao")
         categoria = request.POST.get("CategoriaFk")
         fabricante = request.POST.get("FabricanteFk")
+        image = request.POST.get("image")
         print("postback")
         print(id)
         print(produto)
         print(destaque)
         print(promocao)
         print(msgPromocao)
+        print(image)
         try:
             obj_produto = Produto.objects.filter(id=id).first()
             obj_produto.Produto = produto
@@ -29,8 +31,17 @@ def edit_produto_postback(request, id=None):
             obj_produto.categoria = Categoria.objects.filter(id=categoria).first()
             if msgPromocao is not None:
                 obj_produto.msgPromocao = msgPromocao
-                obj_produto.save()
-                print("Produto %s salvo com sucesso" % produto)
+            if request.FILES is not None:
+                num_files = len(request.FILES.getlist('image'))
+                if num_files > 0:
+                    imagefile = request.FILES['image']
+                    print(imagefile)
+                    fs = FileSystemStorage()
+                    filename = fs.save(imagefile.name, imagefile)
+                    if (filename is not None) and (filename != ""):
+                        obj_produto.image = filename
+                        print(f"obj_produto.image: {obj_produto.image}")
+            obj_produto.save()
         except Exception as e:
             print("Erro salvando edição de produto: %s" % e)
     return redirect("/produto")
@@ -112,6 +123,8 @@ def delete_produto_postback(request, id=None):
         print("postback-delete")
         print(id)
         try:
+            if Produto.objects.filter(id=id).first().image:
+                Produto.objects.filter(id=id).first().image.delete(save=False)
             Produto.objects.filter(id=id).delete()
             print("Produto %s excluido com sucesso" % produto)
         except Exception as e:
@@ -119,6 +132,10 @@ def delete_produto_postback(request, id=None):
     return redirect("/produto")
 
 def create_produto_view(request, id=None):
+    Fabricantes = Fabricante.objects.all()
+    Categorias = Categoria.objects.all()
+    context = {'fabricantes' : Fabricantes, 'categorias' : Categorias}
+
     if request.method == 'POST':
         produto = request.POST.get("Produto")
         destaque = request.POST.get("destaque")
@@ -126,6 +143,8 @@ def create_produto_view(request, id=None):
         msgPromocao = request.POST.get("msgPromocao")
         preco = request.POST.get("preco")
         image = request.POST.get("image")
+        fabricante = request.POST.get("FabricanteFk")
+        categoria = request.POST.get("CategoriaFk")
         print("postback-create")
         print(produto)
         print(destaque)
@@ -133,6 +152,8 @@ def create_produto_view(request, id=None):
         print(msgPromocao)
         print(preco)
         print(image)
+        print(fabricante)
+        print(categoria)
         try:
             obj_produto = Produto()
             obj_produto.Produto = produto
@@ -143,6 +164,8 @@ def create_produto_view(request, id=None):
             obj_produto.preco = 0
             if (preco is not None) and ( preco != ""):
                 obj_produto.preco = preco
+            obj_produto.fabricante = Fabricante.objects.filter(id=fabricante).first()
+            obj_produto.categoria = Categoria.objects.filter(id=categoria).first()
             obj_produto.criado_em = timezone.now()
             obj_produto.alterado_em = obj_produto.criado_em
             # Se for anexado arquivo, salva na pasta e guarda nome no objeto
@@ -160,4 +183,4 @@ def create_produto_view(request, id=None):
         except Exception as e:
             print("Erro inserindo produto: %s" % e)
         return redirect("/produto")
-    return render(request, template_name='produto/produto-create.html',status=200)
+    return render(request, template_name='produto/produto-create.html', context=context, status=200)
