@@ -4,6 +4,7 @@ from datetime import timedelta, datetime
 from django.utils import timezone
 from django.core.files.storage import FileSystemStorage
 
+
 def edit_produto_postback(request, id=None):
     if request.method == 'POST':
         # Salva dados editados
