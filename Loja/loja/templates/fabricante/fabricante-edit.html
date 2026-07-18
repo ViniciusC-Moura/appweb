@@ -7,7 +7,7 @@
 {% block content %}
 <div id="content">
     <div class="container">
-        <form method="POST" enctype="multipart/form-data" action= "/fabricante/edit" >
+        <form method="POST" enctype="multipart/form-data" action= "{% url 'edit_fabricante' fabricante.id %}" >
             {% csrf_token %}
             <div class="row">
             {{ form.as_p }}

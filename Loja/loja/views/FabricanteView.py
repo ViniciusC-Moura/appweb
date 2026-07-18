@@ -29,8 +29,6 @@ def list_fabricante_view(request, id=None):
     fabricante = request.GET.get("fabricante")
 
     fabricantes = Fabricante.objects.all()
-    #produtos = Produto.objects.first()
-    #produtos = Produto.objects.filter(Produto=produto)
 
     if id is not None:
         fabricantes = fabricantes.filter(id=id)
