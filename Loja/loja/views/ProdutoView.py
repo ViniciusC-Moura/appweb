@@ -3,7 +3,7 @@ from loja.models import Produto, Fabricante, Categoria
 from datetime import timedelta, datetime
 from django.utils import timezone
 from django.core.files.storage import FileSystemStorage
-
+from django.contrib.auth.decorators import login_required
 
 def edit_produto_postback(request, id=None):
     if request.method == 'POST':
@@ -47,6 +47,7 @@ def edit_produto_postback(request, id=None):
             print("Erro salvando edição de produto: %s" % e)
     return redirect("/produto")
 
+@login_required
 def edit_produto_view(request, id=None):
     produtos = Produto.objects.all()
     if id is not None:
