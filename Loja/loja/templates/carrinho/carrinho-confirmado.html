@@ -15,6 +15,13 @@
         <div class="alert alert-info">
             <h5>Pedido Número: {{carrinho.id}}</h5>
         </div>
+
+        {% for item in itens %}
+            <div class="alert alert-info">
+                <h5>{{ item.quantidade }}x {{ item.produto }}: R$ {{ item.total|floatformat:2 }}</h5>
+            </div>
+        {% endfor %}
+
         <div class="alert alert-info">
             <h5 class="mt-4">Total: R$ {{ carrinho.total|floatformat:2 }}</h5>
         </div>

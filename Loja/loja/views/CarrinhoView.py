@@ -95,7 +95,8 @@ def confirmar_carrinho_view(request):
             carrinho.save()
             print ('carrinho salvo')
     context = {
-    'carrinho': carrinho
+    'carrinho': carrinho,
+    'itens': CarrinhoItem.objects.filter(carrinho=carrinho)
     }
     return render(request, 'carrinho/carrinho-confirmado.html', context=context)
 
@@ -105,4 +106,22 @@ def remover_item_view(request, item_id):
     carrinho_id = request.session.get('carrinho_id')
     if carrinho_id == item.carrinho.id:
         item.delete()
+    return redirect('/carrinho')
+
+def diminuir_quantidade_item(request, item_id):
+    item = get_object_or_404(CarrinhoItem, id=item_id)
+    carrinho_id = request.session.get('carrinho_id')
+    if carrinho_id == item.carrinho.id:
+        if item.quantidade > 1 :
+            item.quantidade -= 1
+            item.save()
+        else: item.delete()
+    return redirect('/carrinho')
+
+def aumentar_quantidade_item(request, item_id):
+    item = get_object_or_404(CarrinhoItem, id=item_id)
+    carrinho_id = request.session.get('carrinho_id')
+    if carrinho_id == item.carrinho.id:
+        item.quantidade += 1
+        item.save()
     return redirect('/carrinho')
